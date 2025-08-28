@@ -101,6 +101,9 @@ def kick(role):
         if id in users:
             del users[id]
             showTable()
+            if(id == current_user_id):
+                current_user_id = ""
+                current_user_role = ""
             print("정상적으로 삭제되었습니다")
         else:
             print("해당 아이디가 존재하지 않습니다")
