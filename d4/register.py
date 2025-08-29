@@ -1,6 +1,6 @@
-import re
+# import re
 
-import datetime as dt
+# import datetime as dt
 users = {
     'user': {
         'birthday': '20000202',
@@ -27,12 +27,26 @@ def idChk(id):
         return False
     return True
 
-def pwdChk(pwd):
+# def pwdChk(pwd):
+#     if len(pwd) < 8:
+#         return False
+#     special_chars = r'@$!%*#?&'
+#     vregex = re.compile(f'^(?=.*[A-Za-z])(?=.*\d)(?=.*[{re.escape(special_chars)}])[A-Za-z\d{re.escape(special_chars)}]{{10,}}$')
+#     return vregex.match(pwd)
+
+def pwdChk2(pwd):
     if len(pwd) < 8:
         return False
-    special_chars = r'@$!%*#?&'
-    vregex = re.compile(f'^(?=.*[A-Za-z])(?=.*\d)(?=.*[{re.escape(special_chars)}])[A-Za-z\d{re.escape(special_chars)}]{{10,}}$')
-    return vregex.match(pwd)
+    special_chars = ['!', '@', '#', '$', '%', '^', '&', '*']
+    special_flag = False
+    number_flag = False
+    for i in pwd:
+        if i.isdigit():
+            number_flag = True
+        if i in special_chars:
+            special_flag = True
+
+    return special_flag and number_flag
 
 def dayCheck(days):
     [year, month, day] = [int(days[0:4]), int(days[4:6]), int(days[6:])]
@@ -70,7 +84,7 @@ def registerInput():
     id = input("아이디를 입력하세요: ")
     if idChk(id):    
         password = input("비밀번호를 입력하세요: ")
-        if pwdChk(password):
+        if pwdChk2(password):
             birthday = input("생년월일을 입력하세요(YYYYMMDD)")
             if dayCheck(birthday):
                 role = input("역할을 입력하세요(admin, viewer, editor): ")
@@ -172,7 +186,7 @@ def menu():
     while True:
         if current_user_id != "":
             print(f"반갑습니다 {current_user_id} 님")
-        menu = input(f"메뉴를 선택하세요\n {"로그인(0)" if current_user_id == "" else "로그아웃(0)"}, 회원가입(1), 탈퇴(2), {"수정(3)" if current_user_id != "" else ""}")
+        menu = input(f"메뉴를 선택하세요\n {"로그인(0)" if current_user_id == "" else "로그아웃(0)"}, 회원가입(1), 탈퇴(2) {", 수정(3)" if current_user_id != "" else ""}\n")
         match menu:
             case "0":
                 login()
