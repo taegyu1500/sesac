@@ -1,0 +1,30 @@
+@startuml pending
+actor 사용자 as usr
+participant UI as ui
+control 자바스크립트 as js
+collections 서버 as db
+ 
+ui -> usr : 이벤트 페이지 표시
+usr -> ui : 이벤트 참여 클릭
+ui -> js : 스크립트 실행
+ui -> usr : 로딩 아이콘 표시
+group 유효성 검사
+    js -> js : 현재 state 값 체크
+    js -> js : 파라미터 값 유효성 체크
+    js <--> db : (필요시)api 호출을 통한 체크
+    else 실패 시
+    js -[#red]> ui: 유효성 실패 전달
+    ui -[#red]> usr : 사용자에 적절한 에러표시 및 재참여 독려
+end
+js -> db : 참여 api 호출
+db -> db : 다른 서버와 상호작용, 처리
+group 응답 
+    db -[#red]> js: not 200(실패)
+    else
+    db -[#blue]> js: 200(성공)
+end
+js -> ui : 코드에 맞춰 처리 함수 실행
+ui -> usr : 로딩 아이콘 삭제 및 처리 결과 표시
+
+@enduml
+
