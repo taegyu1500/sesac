@@ -25,6 +25,7 @@ DEFAULT_COLOR = TILE_COLORS[1]
 SPAWN_NUMBERS = [2, 4] 
 SPAWN_CHANCES = [0.9, 0.1]
 HISTORIC_MAX = 0 
+LEVEL = 0
 
 def render_board(screen, board_map):
     screen.fill(BG_COLOR)
@@ -108,12 +109,22 @@ def game_over(board_map):
     return True
 
 def create_new_tile(board_map):
+    global LEVEL
+    global SPAWN_NUMBERS
+    global SPAWN_CHANCES
     import random
     empty_cells = [(r, c) for r in range(NUM_GRID) for c in range(NUM_GRID) if board_map[r][c] == 0]
     if not empty_cells:
         return board_map
     r, c = random.choice(empty_cells)
+    if(LEVEL >= 5):
+        SPAWN_NUMBERS = [2 ** i for i in range(1, min(LEVEL - 2, 11))]
+        SPAWN_CHANCES = [0.5 * (0.5 ** i) for i in range(len(SPAWN_NUMBERS) - 1)]
+        SPAWN_CHANCES.append(1 - sum(SPAWN_CHANCES))
     board_map[r][c] = random.choices(SPAWN_NUMBERS, SPAWN_CHANCES)[0]
+    print(f"Spawned {board_map[r][c]} at ({r}, {c})")
+    print(f"Spawn Numbers: {SPAWN_NUMBERS}")
+    print(f"Spawn Chances: {SPAWN_CHANCES}")
     return board_map
 
 def current_max_number(board_map):
@@ -141,6 +152,13 @@ def calculate_current_level(board_map):
 
 def reset():
     global HISTORIC_MAX
+    global LEVEL
+    LEVEL = 0
+    global SPAWN_NUMBERS
+    SPAWN_NUMBERS = [2, 4]
+    global SPAWN_CHANCES
+    SPAWN_CHANCES = [0.9, 0.1]
+    
     if(calculate_score(board_map) > HISTORIC_MAX):
         HISTORIC_MAX = calculate_score(board_map)
     return [[0 for _ in range(NUM_GRID)] for _ in range(NUM_GRID)]
@@ -166,6 +184,7 @@ if __name__ == "__main__":
             elif event.type == pygame.KEYDOWN:
                 if event.key in [pygame.K_LEFT, pygame.K_RIGHT, pygame.K_UP, pygame.K_DOWN]:
                     board_map = push_and_merge(event.key, board_map)
+                    LEVEL = calculate_current_level(board_map)
                     board_map = create_new_tile(board_map)
                     print(board_map)
                 if game_over(board_map):
